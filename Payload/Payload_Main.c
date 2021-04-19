@@ -41,8 +41,9 @@ void on_pause_release();
 /*******************************************************************/
 /*General*/
 int StageNumber = 0; //Used for stage transition
-float BaseAltitude;
+double BaseAltitude;
 /*For Altitude Reading*/
+static int running = 0;
 static rc_mpu_data_t mpu_data;
 static rc_bmp_data_t bmp_data;
 static rc_kalman_t kf = RC_KALMAN_INITIALIZER;
@@ -181,13 +182,13 @@ int BAROMETER_SETUP(void) {
 }
 int ACCELEROMETER_SETUP(void) {
 	rc_mpu_data_t data; //struct to hold new data
-	FILE* Leveling_File;
+	FILE *Leveling_File;
 	Leveling_File = fopen("Leveling_File.txt", "w");
 
 	// use defaults for now, except also enable magnetometer.
 	rc_mpu_config_t conf = rc_mpu_default_config();
 	conf.i2c_bus = I2C_BUS;
-	conf.show_warnings = enable_warnings;
+	//conf.show_warnings = enable_warnings;
 	fprintf(Leveling_File, "Accel XYZ(G)    |");
 	fprintf(Leveling_File, "Accel XYZ(raw ADC) \n");
 	if (rc_mpu_initialize(&data, conf)) {
@@ -249,8 +250,8 @@ int main()
 	/*******************************************************************/
 	// BAROMETER & MPU Accelerometer Setup
 	/*******************************************************************/
-	BAROMETER_SETUP(void);
-	ACCELEROMETER_SETUP(void);
+	BAROMETER_SETUP();
+	ACCELEROMETER_SETUP();
 	rc_mpu_data_t data; //struct to hold new data
 
 
@@ -283,6 +284,7 @@ int main()
 		fclose(ALTITUDE_FILE);
 
 		// Read MPU sensor data
+		FILE *Leveling_File;
 		Leveling_File = fopen("Leveling_File.txt", "w");
 		if (rc_mpu_read_accel(&data) < 0) {
 			fprintf(Leveling_File, "read accel data failed\n");
