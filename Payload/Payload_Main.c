@@ -90,7 +90,7 @@ static void __dmp_handler(void)
 
 	return;
 }
-
+/*
 int BAROMETER_SETUP(void) {
 	rc_mpu_config_t mpu_conf;
 	rc_matrix_t F = RC_MATRIX_INITIALIZER;
@@ -153,19 +153,19 @@ int BAROMETER_SETUP(void) {
 
 
 	// init barometer and read in first data
-	//printf("initializing barometer\n");
+	printf("initializing barometer\n");
 	if (rc_bmp_init(BMP_OVERSAMPLE_16, BMP_FILTER_16)) return -1;
 	if (rc_bmp_read(&bmp_data)) return -1;
 
 	// init DMP
-	//printf("initializing DMP\n");
+	printf("initializing DMP\n");
 	mpu_conf = rc_mpu_default_config();
 	mpu_conf.dmp_sample_rate = SAMPLE_RATE;
 	mpu_conf.dmp_fetch_accel_gyro = 1;
 	if (rc_mpu_initialize_dmp(&mpu_data, mpu_conf)) return -1;
 
 	// wait for dmp to settle then start filter callback
-	//printf("waiting for sensors to settle");
+	printf("waiting for sensors to settle");
 	rc_usleep(3000000);
 	rc_mpu_set_dmp_callback(__dmp_handler);
 	FILE *ALTITUDE_FILE;
@@ -180,6 +180,8 @@ int BAROMETER_SETUP(void) {
 
 	return 0;
 }
+*/
+/*
 int ACCELEROMETER_SETUP(void) {
 	rc_mpu_data_t data; //struct to hold new data
 	FILE *Leveling_File;
@@ -198,7 +200,7 @@ int ACCELEROMETER_SETUP(void) {
 	fclose(Leveling_File);
 	return 0;
 }
-
+*/
 
 /**
  * This template contains these critical components
@@ -250,9 +252,98 @@ int main()
 	/*******************************************************************/
 	// BAROMETER & MPU Accelerometer Setup
 	/*******************************************************************/
-	BAROMETER_SETUP();
-	ACCELEROMETER_SETUP();
-	rc_mpu_data_t data; //struct to hold new data
+	//BAROMETER_SETUP();
+	rc_mpu_config_t mpu_conf;
+	rc_matrix_t F = RC_MATRIX_INITIALIZER;
+	rc_matrix_t G = RC_MATRIX_INITIALIZER;
+	rc_matrix_t H = RC_MATRIX_INITIALIZER;
+	rc_matrix_t Q = RC_MATRIX_INITIALIZER;
+	rc_matrix_t R = RC_MATRIX_INITIALIZER;
+	rc_matrix_t Pi = RC_MATRIX_INITIALIZER;
+
+	// allocate appropirate memory for system
+	rc_matrix_zeros(&F, Nx, Nx);
+	rc_matrix_zeros(&G, Nx, Nu);
+	rc_matrix_zeros(&H, Ny, Nx);
+	rc_matrix_zeros(&Q, Nx, Nx);
+	rc_matrix_zeros(&R, Ny, Ny);
+	rc_matrix_zeros(&Pi, Nx, Nx);
+	rc_vector_zeros(&u, Nu);
+	rc_vector_zeros(&y, Ny);
+
+	// define system -DT; // accel bias
+	F.d[0][0] = 1.0;
+	F.d[0][1] = DT;
+	F.d[0][2] = 0.0;
+	F.d[1][0] = 0.0;
+	F.d[1][1] = 1.0;
+	F.d[1][2] = -DT; // subtract accel bias
+	F.d[2][0] = 0.0;
+	F.d[2][1] = 0.0;
+	F.d[2][2] = 1.0; // accel bias state
+
+	G.d[0][0] = 0.5 * DT * DT;
+	G.d[0][1] = DT;
+	G.d[0][2] = 0.0;
+
+	H.d[0][0] = 1.0;
+	H.d[0][1] = 0.0;
+	H.d[0][2] = 0.0;
+
+	// covariance matrices
+	Q.d[0][0] = 0.000000001;
+	Q.d[1][1] = 0.000000001;
+	Q.d[2][2] = 0.0001; // don't want bias to change too quickly
+	R.d[0][0] = 1000000.0;
+
+	// initial P, cloned from converged P while running
+	Pi.d[0][0] = 1258.69;
+	Pi.d[0][1] = 158.6114;
+	Pi.d[0][2] = -9.9937;
+	Pi.d[1][0] = 158.6114;
+	Pi.d[1][1] = 29.9870;
+	Pi.d[1][2] = -2.5191;
+	Pi.d[2][0] = -9.9937;
+	Pi.d[2][1] = -2.5191;
+	Pi.d[2][2] = 0.3174;
+
+	// initialize the kalman filter
+	if (rc_kalman_alloc_lin(&kf, F, G, H, Q, R, Pi) == -1) return -1;
+	// initialize the little LP filter to take out accel noise
+	if (rc_filter_first_order_lowpass(&acc_lp, DT, ACCEL_LP_TC)) return -1;
+
+
+	// init barometer and read in first data
+	printf("initializing barometer\n");
+	if (rc_bmp_init(BMP_OVERSAMPLE_16, BMP_FILTER_16)) return -1;
+	if (rc_bmp_read(&bmp_data)) return -1;
+
+	// init DMP
+	printf("initializing DMP\n");
+	mpu_conf = rc_mpu_default_config();
+	mpu_conf.dmp_sample_rate = SAMPLE_RATE;
+	mpu_conf.dmp_fetch_accel_gyro = 1;
+	if (rc_mpu_initialize_dmp(&mpu_data, mpu_conf)) return -1;
+
+	// wait for dmp to settle then start filter callback
+	printf("waiting for sensors to settle");
+	rc_usleep(3000000);
+	rc_mpu_set_dmp_callback(__dmp_handler);
+	FILE *ALTITUDE_FILE;
+	ALTITUDE_FILE = fopen("ALTITUDE_FILE.txt", "w");
+	// print a header
+	fprintf(ALTITUDE_FILE, " altitude |");
+	fprintf(ALTITUDE_FILE, "  velocity |");
+	fprintf(ALTITUDE_FILE, " accel_bias |");
+	fprintf(ALTITUDE_FILE, " alt (bmp) |");
+	fprintf(ALTITUDE_FILE, " vert_accel |\n");
+	fclose(ALTITUDE_FILE);
+
+
+
+
+	//ACCELEROMETER_SETUP();
+	//rc_mpu_data_t data; //struct to hold new data
 
 
 
@@ -272,7 +363,7 @@ int main()
 			rc_led_set(RC_LED_RED, 1);
 		}
 		
-
+		/*
 		//Read Bar sensor data
 		FILE *ALTITUDE_FILE;
 		ALTITUDE_FILE = fopen("ALTITUDE_FILE.txt", "w");
@@ -335,7 +426,7 @@ int main()
 		
 		
 		
-		
+		*/
 		// always sleep at some point
 		rc_usleep(100000);
 	}
