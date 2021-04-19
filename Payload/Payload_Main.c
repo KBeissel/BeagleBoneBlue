@@ -90,96 +90,7 @@ static void __dmp_handler(void)
 
 	return;
 }
-/*
-int BAROMETER_SETUP(void) {
-	rc_mpu_config_t mpu_conf;
-	rc_matrix_t F = RC_MATRIX_INITIALIZER;
-	rc_matrix_t G = RC_MATRIX_INITIALIZER;
-	rc_matrix_t H = RC_MATRIX_INITIALIZER;
-	rc_matrix_t Q = RC_MATRIX_INITIALIZER;
-	rc_matrix_t R = RC_MATRIX_INITIALIZER;
-	rc_matrix_t Pi = RC_MATRIX_INITIALIZER;
 
-	// allocate appropirate memory for system
-	rc_matrix_zeros(&F, Nx, Nx);
-	rc_matrix_zeros(&G, Nx, Nu);
-	rc_matrix_zeros(&H, Ny, Nx);
-	rc_matrix_zeros(&Q, Nx, Nx);
-	rc_matrix_zeros(&R, Ny, Ny);
-	rc_matrix_zeros(&Pi, Nx, Nx);
-	rc_vector_zeros(&u, Nu);
-	rc_vector_zeros(&y, Ny);
-
-	// define system -DT; // accel bias
-	F.d[0][0] = 1.0;
-	F.d[0][1] = DT;
-	F.d[0][2] = 0.0;
-	F.d[1][0] = 0.0;
-	F.d[1][1] = 1.0;
-	F.d[1][2] = -DT; // subtract accel bias
-	F.d[2][0] = 0.0;
-	F.d[2][1] = 0.0;
-	F.d[2][2] = 1.0; // accel bias state
-
-	G.d[0][0] = 0.5 * DT * DT;
-	G.d[0][1] = DT;
-	G.d[0][2] = 0.0;
-
-	H.d[0][0] = 1.0;
-	H.d[0][1] = 0.0;
-	H.d[0][2] = 0.0;
-
-	// covariance matrices
-	Q.d[0][0] = 0.000000001;
-	Q.d[1][1] = 0.000000001;
-	Q.d[2][2] = 0.0001; // don't want bias to change too quickly
-	R.d[0][0] = 1000000.0;
-
-	// initial P, cloned from converged P while running
-	Pi.d[0][0] = 1258.69;
-	Pi.d[0][1] = 158.6114;
-	Pi.d[0][2] = -9.9937;
-	Pi.d[1][0] = 158.6114;
-	Pi.d[1][1] = 29.9870;
-	Pi.d[1][2] = -2.5191;
-	Pi.d[2][0] = -9.9937;
-	Pi.d[2][1] = -2.5191;
-	Pi.d[2][2] = 0.3174;
-
-	// initialize the kalman filter
-	if (rc_kalman_alloc_lin(&kf, F, G, H, Q, R, Pi) == -1) return -1;
-	// initialize the little LP filter to take out accel noise
-	if (rc_filter_first_order_lowpass(&acc_lp, DT, ACCEL_LP_TC)) return -1;
-
-
-	// init barometer and read in first data
-	printf("initializing barometer\n");
-	if (rc_bmp_init(BMP_OVERSAMPLE_16, BMP_FILTER_16)) return -1;
-	if (rc_bmp_read(&bmp_data)) return -1;
-
-	// init DMP
-	printf("initializing DMP\n");
-	mpu_conf = rc_mpu_default_config();
-	mpu_conf.dmp_sample_rate = SAMPLE_RATE;
-	mpu_conf.dmp_fetch_accel_gyro = 1;
-	if (rc_mpu_initialize_dmp(&mpu_data, mpu_conf)) return -1;
-
-	// wait for dmp to settle then start filter callback
-	printf("waiting for sensors to settle");
-	rc_usleep(3000000);
-	rc_mpu_set_dmp_callback(__dmp_handler);
-	FILE *ALTITUDE_FILE;
-	ALTITUDE_FILE = fopen("ALTITUDE_FILE.txt", "w");
-	// print a header
-	fprintf(ALTITUDE_FILE, " altitude |");
-	fprintf(ALTITUDE_FILE, "  velocity |");
-	fprintf(ALTITUDE_FILE, " accel_bias |");
-	fprintf(ALTITUDE_FILE, " alt (bmp) |");
-	fprintf(ALTITUDE_FILE, " vert_accel |\n");
-	fclose(ALTITUDE_FILE);
-
-	return 0;
-}
 */
 /*
 int ACCELEROMETER_SETUP(void) {
@@ -252,7 +163,7 @@ int main()
 	/*******************************************************************/
 	// BAROMETER & MPU Accelerometer Setup
 	/*******************************************************************/
-	//BAROMETER_SETUP();
+	
 	rc_mpu_config_t mpu_conf;
 	rc_matrix_t F = RC_MATRIX_INITIALIZER;
 	rc_matrix_t G = RC_MATRIX_INITIALIZER;
@@ -341,10 +252,30 @@ int main()
 	
 	
 
+	/*******************************************************************/
+	// MPU Accelerometer Setup
+	/*******************************************************************/
 
+	
+	rc_mpu_data_t data; //struct to hold new data
+	FILE *Leveling_File;
+	Leveling_File = fopen("Leveling_File.txt", "w");
 
-	//ACCELEROMETER_SETUP();
-	//rc_mpu_data_t data; //struct to hold new data
+	// use defaults for now, except also enable magnetometer.
+	rc_mpu_config_t conf = rc_mpu_default_config();
+	conf.i2c_bus = I2C_BUS;
+	//conf.show_warnings = enable_warnings;
+	fprintf(Leveling_File, "Accel XYZ(G)    |");
+	fprintf(Leveling_File, "Accel XYZ(raw ADC) \n");
+	if (rc_mpu_initialize(&data, conf)) {
+		fprintf(Leveling_File, "rc_mpu_initialize_failed\n");
+		return -1;
+	}
+	fclose(Leveling_File);
+	
+	/*******************************************************************/
+	// Main Loop
+	/*******************************************************************/
 
 
 
@@ -373,7 +304,7 @@ int main()
 		fprintf(ALTITUDE_FILE, "%9.2fm |", bmp_data.alt_m);
 		fprintf(ALTITUDE_FILE, "%7.2fm/s^2|\n", acc_lp.newest_output);
 		fclose(ALTITUDE_FILE);
-		/*
+		
 		// Read MPU sensor data
 		FILE *Leveling_File;
 		Leveling_File = fopen("Leveling_File.txt", "a");
@@ -390,7 +321,7 @@ int main()
 				data.raw_accel[2]);
 		}
 		fclose(Leveling_File);
-		
+		/*
 		//Ride Along Stage
 		if (StageNumber == 1) {
 			if ((kf.x_est.d[0] - BaseAltitude) > 20) {
