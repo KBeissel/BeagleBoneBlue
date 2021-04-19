@@ -308,7 +308,7 @@ int main()
 					//Payload/Rocket is descending using Vertical Acceleration Calculation
 					if (kf.x_est.d[1] < 0.01) {
 						//The Payload has landed based on velocity being less then 1 cm per second.
-						StageNumber == 2
+						StageNumber == 2;
 					}
 				}
 			}
