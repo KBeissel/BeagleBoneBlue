@@ -91,7 +91,7 @@ static void __dmp_handler(void)
 	return;
 }
 
-*/
+
 /*
 int ACCELEROMETER_SETUP(void) {
 	rc_mpu_data_t data; //struct to hold new data
