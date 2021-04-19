@@ -366,17 +366,17 @@ int main()
 		
 		
 		//Read Bar sensor data
-		ALTITUDE_FILE = fopen("ALTITUDE_FILE.txt", "w");
+		ALTITUDE_FILE = fopen("ALTITUDE_FILE.txt", "a");
 		fprintf(ALTITUDE_FILE, "%8.2fm |", kf.x_est.d[0]);
 		fprintf(ALTITUDE_FILE, "%7.2fm/s |", kf.x_est.d[1]);
 		fprintf(ALTITUDE_FILE, "%7.2fm/s^2|", kf.x_est.d[2]);
 		fprintf(ALTITUDE_FILE, "%9.2fm |", bmp_data.alt_m);
-		fprintf(ALTITUDE_FILE, "%7.2fm/s^2|", acc_lp.newest_output);
+		fprintf(ALTITUDE_FILE, "%7.2fm/s^2|\n", acc_lp.newest_output);
 		fclose(ALTITUDE_FILE);
 		/*
 		// Read MPU sensor data
 		FILE *Leveling_File;
-		Leveling_File = fopen("Leveling_File.txt", "w");
+		Leveling_File = fopen("Leveling_File.txt", "a");
 		if (rc_mpu_read_accel(&data) < 0) {
 			fprintf(Leveling_File, "read accel data failed\n");
 			
