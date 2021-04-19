@@ -332,18 +332,14 @@ int main()
 	FILE *ALTITUDE_FILE;
 	ALTITUDE_FILE = fopen("ALTITUDE_FILE.txt", "w");
 	// print a header
-	/*fprintf(ALTITUDE_FILE, " altitude |");
+	fprintf(ALTITUDE_FILE, " altitude |");
 	fprintf(ALTITUDE_FILE, "  velocity |");
 	fprintf(ALTITUDE_FILE, " accel_bias |");
 	fprintf(ALTITUDE_FILE, " alt (bmp) |");
 	fprintf(ALTITUDE_FILE, " vert_accel |\n");
 	fclose(ALTITUDE_FILE);
-	*/
-	printf(" altitude |");
-	printf("  velocity |");
-	printf(" accel_bias |");
-	printf(" alt (bmp) |");
-	printf(" vert_accel |\n");
+	
+	
 
 
 
