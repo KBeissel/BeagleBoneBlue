@@ -364,9 +364,8 @@ int main()
 			rc_led_set(RC_LED_RED, 1);
 		}
 		
-		/*
+		
 		//Read Bar sensor data
-		FILE *ALTITUDE_FILE;
 		ALTITUDE_FILE = fopen("ALTITUDE_FILE.txt", "w");
 		fprintf(ALTITUDE_FILE, "%8.2fm |", kf.x_est.d[0]);
 		fprintf(ALTITUDE_FILE, "%7.2fm/s |", kf.x_est.d[1]);
@@ -374,7 +373,7 @@ int main()
 		fprintf(ALTITUDE_FILE, "%9.2fm |", bmp_data.alt_m);
 		fprintf(ALTITUDE_FILE, "%7.2fm/s^2|", acc_lp.newest_output);
 		fclose(ALTITUDE_FILE);
-
+		/*
 		// Read MPU sensor data
 		FILE *Leveling_File;
 		Leveling_File = fopen("Leveling_File.txt", "w");
