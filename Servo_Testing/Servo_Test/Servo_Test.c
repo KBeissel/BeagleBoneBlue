@@ -107,11 +107,13 @@ int main()
 		width_us = 2000;
 		printf("Sending Servo Pulse Signal...");
 
+		rc_servo_send_oneshot_pulse_normalized(0, 1.0);
+		/*
 		rc_servo_send_pulse_us(ch1, width_us);
 		rc_servo_send_pulse_us(ch2, width_us);
 		rc_servo_send_pulse_us(ch3, width_us);
 		rc_servo_send_pulse_us(ch4, width_us);
-
+		*/
 		printf("Signal Sent");
 
 		// sleep for 1 sec
@@ -120,12 +122,13 @@ int main()
 		//Fully Retracted
 		width_us = 1000;
 		printf("Sending Servo Pulse Signal...");
-
+		rc_servo_send_oneshot_pulse_normalized(0, 0.5);
+		/*
 		rc_servo_send_pulse_us(ch1, width_us);
 		rc_servo_send_pulse_us(ch2, width_us);
 		rc_servo_send_pulse_us(ch3, width_us);
 		rc_servo_send_pulse_us(ch4, width_us);
-
+		*/
 		printf("Signal Sent");
 
 		// sleep for 1 sec
@@ -134,12 +137,13 @@ int main()
 		//Half Extended
 		width_us = 1500;
 		printf("Sending Servo Pulse Signal...");
-
+		rc_servo_send_oneshot_pulse_normalized(0, 0.0);
+		/*
 		rc_servo_send_pulse_us(ch1, width_us);
 		rc_servo_send_pulse_us(ch2, width_us);
 		rc_servo_send_pulse_us(ch3, width_us);
 		rc_servo_send_pulse_us(ch4, width_us);
-
+		*/
 		printf("Signal Sent");
 
 		// sleep for 1 sec
