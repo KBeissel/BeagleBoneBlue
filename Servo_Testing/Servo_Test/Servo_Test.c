@@ -107,15 +107,15 @@ int main()
 		width_us = 2000;
 		printf("Sending Servo Pulse Signal...");
 
-		rc_servo_send_oneshot_pulse_normalized(0, 1.0);
-		/*
+		//rc_servo_send_oneshot_pulse_normalized(0, 1.0);
+		
 		rc_servo_send_pulse_us(ch1, width_us);
 		rc_servo_send_pulse_us(ch2, width_us);
 		rc_servo_send_pulse_us(ch3, width_us);
 		rc_servo_send_pulse_us(ch4, width_us);
-		*/
+		
 		printf("Signal Sent");
-
+		/*
 		// sleep for 1 sec
 		rc_usleep(1000000);
 
@@ -128,7 +128,7 @@ int main()
 		rc_servo_send_pulse_us(ch2, width_us);
 		rc_servo_send_pulse_us(ch3, width_us);
 		rc_servo_send_pulse_us(ch4, width_us);
-		*/
+		
 		printf("Signal Sent");
 
 		// sleep for 1 sec
@@ -138,16 +138,16 @@ int main()
 		width_us = 1500;
 		printf("Sending Servo Pulse Signal...");
 		rc_servo_send_oneshot_pulse_normalized(0, 0.0);
-		/*
+		
 		rc_servo_send_pulse_us(ch1, width_us);
 		rc_servo_send_pulse_us(ch2, width_us);
 		rc_servo_send_pulse_us(ch3, width_us);
 		rc_servo_send_pulse_us(ch4, width_us);
-		*/
+		
 		printf("Signal Sent");
-
+		*/
 		// sleep for 1 sec
-		rc_usleep(1000000);
+		rc_usleep(3000000);
 
 		// turn off power rail and cleanup
 		rc_servo_power_rail_en(0);
