@@ -123,7 +123,7 @@ int main()
 		width_us = 1000;
 		printf("Sending Servo Pulse Signal...");
 		rc_servo_send_oneshot_pulse_normalized(0, 0.5);
-		/*
+		
 		rc_servo_send_pulse_us(ch1, width_us);
 		rc_servo_send_pulse_us(ch2, width_us);
 		rc_servo_send_pulse_us(ch3, width_us);
