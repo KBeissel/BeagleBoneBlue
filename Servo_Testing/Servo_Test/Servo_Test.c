@@ -126,11 +126,13 @@ int main()
 
 		//rc_servo_send_oneshot_pulse_normalized(0, 1.0);
 		
-		rc_servo_send_pulse_us(ch1, width_us);
-		rc_servo_send_pulse_us(ch2, width_us);
-		rc_servo_send_pulse_us(ch3, width_us);
-		rc_servo_send_pulse_us(ch4, width_us);
-		rc_servo_send_pulse_us(0, width_us);
+		//rc_servo_send_pulse_us(ch1, width_us);
+		//rc_servo_send_pulse_us(ch2, width_us);
+		//rc_servo_send_pulse_us(ch3, width_us);
+		//rc_servo_send_pulse_us(ch4, width_us);
+		if (rc_servo_send_pulse_us(0, width_us) == -1) return -1;
+		break;
+		//rc_servo_send_pulse_us(0, width_us);
 		//printf("Signal Sent");
 		/*
 		// sleep for 1 sec
@@ -164,7 +166,7 @@ int main()
 		printf("Signal Sent");
 		*/
 		// sleep for 1 sec
-		rc_usleep(18000);
+		rc_usleep(1000000/50);
 
 		
 
