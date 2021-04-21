@@ -70,6 +70,23 @@ int main()
 	int ch3 = 3; // channel to test 0-8, 0 means all channels
 	int ch4 = 4; // channel to test 0-8, 0 means all channels
 	int width_us = 0; // Pulse Width in microseconds Targeted 1000-2000us, Full Range 600-2400us.
+	// read adc to make sure battery is connected
+	if (rc_adc_init()) {
+		fprintf(stderr, "ERROR: failed to run rc_adc_init()\n");
+		return -1;
+	}
+	if (rc_adc_batt() < 6.0) {
+		fprintf(stderr, "ERROR: battery disconnected or insufficiently charged to drive servos\n");
+		return -1;
+	}
+	rc_adc_cleanup();
+
+	// initialize PRU
+	if (rc_servo_init()) return -1;
+
+	// turn on power
+	//printf("Turning On 6V Servo Power Rail\n");
+	rc_servo_power_rail_en(1);
 
 	// Keep looping until state changes to EXITING
 	rc_set_state(RUNNING);
@@ -100,12 +117,12 @@ int main()
 		if (rc_servo_init()) return -1;
 
 		// turn on power
-		printf("Turning On 6V Servo Power Rail\n");
+		//printf("Turning On 6V Servo Power Rail\n");
 		rc_servo_power_rail_en(1);
 
 		//Fully Extended
 		width_us = 2000;
-		printf("Sending Servo Pulse Signal...");
+		//printf("Sending Servo Pulse Signal...");
 
 		//rc_servo_send_oneshot_pulse_normalized(0, 1.0);
 		
@@ -114,7 +131,7 @@ int main()
 		rc_servo_send_pulse_us(ch3, width_us);
 		rc_servo_send_pulse_us(ch4, width_us);
 		rc_servo_send_pulse_us(0, width_us);
-		printf("Signal Sent");
+		//printf("Signal Sent");
 		/*
 		// sleep for 1 sec
 		rc_usleep(1000000);
@@ -147,11 +164,9 @@ int main()
 		printf("Signal Sent");
 		*/
 		// sleep for 1 sec
-		rc_usleep(3000000);
+		rc_usleep(18000);
 
-		// turn off power rail and cleanup
-		rc_servo_power_rail_en(0);
-		rc_servo_cleanup();
+		
 
 		
 		
@@ -167,9 +182,10 @@ int main()
 		
 		
 		// always sleep at some point
-		rc_usleep(100000);
+		//rc_usleep(100000);
 	}
-
+	rc_servo_power_rail_en(0);
+	rc_servo_cleanup();
 	// turn off LEDs and close file descriptors
 	rc_led_set(RC_LED_GREEN, 0);
 	rc_led_set(RC_LED_RED, 0);
