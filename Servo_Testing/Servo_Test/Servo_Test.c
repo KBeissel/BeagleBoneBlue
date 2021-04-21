@@ -113,7 +113,7 @@ int main()
 		rc_servo_send_pulse_us(ch2, width_us);
 		rc_servo_send_pulse_us(ch3, width_us);
 		rc_servo_send_pulse_us(ch4, width_us);
-		
+		rc_servo_send_pulse_us(0, width_us);
 		printf("Signal Sent");
 		/*
 		// sleep for 1 sec
