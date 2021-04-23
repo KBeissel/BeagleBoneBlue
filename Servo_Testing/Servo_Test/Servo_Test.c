@@ -4,16 +4,16 @@
  * This is meant to be a skeleton program for Robot Control projects. Change
  * this description and file name before modifying for your own purpose.
  */
-
+#include <rc/time.h>
+#include <rc/adc.h>
+#include <rc/dsm.h>
+#include <rc/servo.h>
 #include <stdio.h>
 #include <robotcontrol.h> // includes ALL Robot Control subsystems
 #include <getopt.h>
 #include <stdlib.h> // for atoi
 #include <signal.h>
-#include <rc/time.h>
-#include <rc/adc.h>
-#include <rc/dsm.h>
-#include <rc/servo.h>
+
 
 // function declarations
 void on_pause_press();
@@ -64,13 +64,24 @@ int main()
 
 	printf("\nPress and release pause button to turn green LED on and off\n");
 	printf("hold pause button down for 2 seconds to exit\n");
-
-	int ch1 = 1; // channel to test 0-8, 0 means all channels
-	int ch2 = 2; // channel to test 0-8, 0 means all channels
-	int ch3 = 3; // channel to test 0-8, 0 means all channels
-	int ch4 = 4; // channel to test 0-8, 0 means all channels
+	//double servo_pos = 0;
+	//double sweep_limit = 0;
+	//uint64_t dsm_nanos = 0;
+	
+	int ch = 0; // channel to test, 0 means all channels
+	//double direction = 1; // switches between 1 & -1 in sweep mode
+	
+	int frequency_hz = 50; // default 50hz frequency to send pulses
+	//int i, c, radio_ch;
+	//int ch1 = 1; // channel to test 0-8, 0 means all channels
+	//int ch2 = 2; // channel to test 0-8, 0 means all channels
+	//int ch3 = 3; // channel to test 0-8, 0 means all channels
+	//int ch4 = 4; // channel to test 0-8, 0 means all channels
 	int width_us = 0; // Pulse Width in microseconds Targeted 1000-2000us, Full Range 600-2400us.
-	// read adc to make sure battery is connected
+	
+					  
+					  
+					  // read adc to make sure battery is connected
 	if (rc_adc_init()) {
 		fprintf(stderr, "ERROR: failed to run rc_adc_init()\n");
 		return -1;
@@ -100,92 +111,22 @@ int main()
 			rc_led_set(RC_LED_GREEN, 0);
 			rc_led_set(RC_LED_RED, 1);
 		}
-		
-
-		// read adc to make sure battery is connected
-		if (rc_adc_init()) {
-			fprintf(stderr, "ERROR: failed to run rc_adc_init()\n");
-			return -1;
-		}
-		if (rc_adc_batt() < 6.0) {
-			fprintf(stderr, "ERROR: battery disconnected or insufficiently charged to drive servos\n");
-			return -1;
-		}
-		rc_adc_cleanup();
-
-		// initialize PRU
-		if (rc_servo_init()) return -1;
-
-		// turn on power
-		//printf("Turning On 6V Servo Power Rail\n");
-		rc_servo_power_rail_en(1);
-
-		//Fully Extended
 		width_us = 2000;
-		//printf("Sending Servo Pulse Signal...");
-
-		//rc_servo_send_oneshot_pulse_normalized(0, 1.0);
-		
-		//rc_servo_send_pulse_us(ch1, width_us);
-		//rc_servo_send_pulse_us(ch2, width_us);
-		//rc_servo_send_pulse_us(ch3, width_us);
-		//rc_servo_send_pulse_us(ch4, width_us);
-		if (rc_servo_send_pulse_us(0, width_us) == -1) return -1;
+		if (rc_servo_send_pulse_us(ch, width_us) == -1) return -1;
 		break;
-		//rc_servo_send_pulse_us(0, width_us);
-		//printf("Signal Sent");
-		/*
-		// sleep for 1 sec
-		rc_usleep(1000000);
-
-		//Fully Retracted
-		width_us = 1000;
-		printf("Sending Servo Pulse Signal...");
-		rc_servo_send_oneshot_pulse_normalized(0, 0.5);
 		
-		rc_servo_send_pulse_us(ch1, width_us);
-		rc_servo_send_pulse_us(ch2, width_us);
-		rc_servo_send_pulse_us(ch3, width_us);
-		rc_servo_send_pulse_us(ch4, width_us);
 		
-		printf("Signal Sent");
-
-		// sleep for 1 sec
-		rc_usleep(1000000);
-
-		//Half Extended
-		width_us = 1500;
-		printf("Sending Servo Pulse Signal...");
-		rc_servo_send_oneshot_pulse_normalized(0, 0.0);
-		
-		rc_servo_send_pulse_us(ch1, width_us);
-		rc_servo_send_pulse_us(ch2, width_us);
-		rc_servo_send_pulse_us(ch3, width_us);
-		rc_servo_send_pulse_us(ch4, width_us);
-		
-		printf("Signal Sent");
-		*/
-		// sleep for 1 sec
-		rc_usleep(1000000/50);
 
 		
 
 		
+
 		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		// always sleep at some point
-		//rc_usleep(100000);
+		rc_usleep(1000000 / frequency_hz);
+
 	}
+	rc_usleep(50000);
+	// turn off power rail and cleanup
 	rc_servo_power_rail_en(0);
 	rc_servo_cleanup();
 	// turn off LEDs and close file descriptors
